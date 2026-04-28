@@ -1,0 +1,396 @@
+:root {
+  --fons: #0a0a0f;
+  --virsma: #12121a;
+  --virsma2: #1a1a26;
+  --robeza: #2a2a3d;
+  --akcents: #7c6bff;
+  --akcents2: #ff6b9d;
+  --akcents3: #6bffd4;
+  --teksts: #e8e8f0;
+  --teksts2: #888899;
+  --teksts3: #555566;
+  --briesmas: #ff4d6d;
+  --veiksme: #4dffb4;
+  --bridinajums: #ffd94d;
+  --radiuss: 12px;
+  --fonts: 'Syne', sans-serif;
+  --monospace: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--fons);color:var(--teksts);font-family:var(--fonts);
+  font-size:15px;line-height:1.5;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124,107,255,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,107,157,.05) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── Ekrāni ── */
+.screen{display:none;flex-direction:column;height:100%;overflow-y:auto;}
+.screen.active{display:flex;}
+
+/* ── Ritjosla ── */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--robeza);border-radius:3px;}
+
+/* ── Navigācija ── */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 28px;border-bottom:1px solid var(--robeza);
+  background:rgba(10,10,15,.8);backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:100;flex-shrink:0;
+}
+.logo{
+  font-size:20px;font-weight:800;letter-spacing:-0.5px;
+  background:linear-gradient(135deg,var(--akcents),var(--akcents2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-right{display:flex;gap:12px;align-items:center;}
+.user-email{font-size:12px;color:var(--teksts3);font-family:var(--monospace);}
+
+/* ── Pogas ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:8px;border:none;cursor:pointer;
+  font-family:var(--fonts);font-weight:600;font-size:14px;
+  transition:all .15s ease;user-select:none;text-decoration:none;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-primary{background:var(--akcents);color:#fff;}
+.btn-primary:hover:not(:disabled){background:#9585ff;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--teksts2);border:1px solid var(--robeza);}
+.btn-ghost:hover:not(:disabled){background:var(--virsma2);color:var(--teksts);}
+.btn-danger{background:transparent;color:var(--briesmas);border:1px solid rgba(255,77,109,.3);}
+.btn-danger:hover:not(:disabled){background:rgba(255,77,109,.1);}
+.btn-success{background:var(--veiksme);color:var(--fons);}
+.btn-success:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);}
+.btn-lg{padding:14px 28px;font-size:16px;}
+.btn-sm{padding:6px 14px;font-size:13px;}
+.btn-icon{padding:8px;border-radius:6px;}
+
+/* ── Formas ── */
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+label{font-size:12px;font-weight:600;color:var(--teksts2);letter-spacing:.05em;text-transform:uppercase;}
+input,textarea,select{
+  background:var(--virsma2);border:1px solid var(--robeza);
+  color:var(--teksts);font-family:var(--fonts);font-size:15px;
+  padding:11px 14px;border-radius:8px;outline:none;width:100%;
+  transition:border-color .15s;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--akcents);}
+input::placeholder,textarea::placeholder{color:var(--teksts3);}
+textarea{resize:vertical;min-height:80px;}
+select{appearance:none;}
+
+/* ── Kartītes ── */
+.card{
+  background:var(--virsma);border:1px solid var(--robeza);
+  border-radius:var(--radiuss);padding:24px;
+}
+.card-hover{transition:border-color .15s,transform .15s;}
+.card-hover:hover{border-color:var(--akcents);transform:translateY(-2px);}
+
+/* ── Nozīmītes ── */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase;font-family:var(--monospace);
+}
+.badge-draft,.badge-melnraksts{background:rgba(255,217,77,.1);color:var(--bridinajums);}
+.badge-published,.badge-publicets{background:rgba(77,255,180,.1);color:var(--veiksme);}
+.badge-waiting,.badge-gaida{background:rgba(124,107,255,.1);color:var(--akcents);}
+.badge-active,.badge-notiek{background:rgba(77,255,180,.15);color:var(--veiksme);animation:pulse-badge 1.5s ease-in-out infinite;}
+.badge-finished,.badge-pabeigts{background:rgba(136,136,153,.1);color:var(--teksts3);}
+@keyframes pulse-badge{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* ── Brīdinājumi ── */
+.alert{
+  padding:12px 16px;border-radius:8px;font-size:14px;margin-bottom:16px;
+  border:1px solid;display:flex;align-items:center;gap:10px;
+}
+.alert-error{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.3);color:var(--briesmas);}
+.alert-success{background:rgba(77,255,180,.1);border-color:rgba(77,255,180,.3);color:var(--veiksme);}
+
+/* ── Ielāde ── */
+.spinner{
+  width:20px;height:20px;border:2px solid var(--robeza);
+  border-top-color:var(--akcents);border-radius:50%;animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-overlay{
+  display:flex;align-items:center;justify-content:center;
+  height:200px;flex-direction:column;gap:12px;color:var(--teksts3);
+}
+
+/* ── Atdalītājs ── */
+.divider{height:1px;background:var(--robeza);margin:24px 0;}
+
+/* ════════════════════════════════
+   PIERAKSTĪŠANĀS
+════════════════════════════════ */
+#screen-auth{
+  justify-content:center;align-items:center;
+  background:var(--fons);
+}
+.auth-box{width:100%;max-width:420px;padding:20px;}
+.auth-header{text-align:center;margin-bottom:40px;}
+.auth-logo{
+  font-size:36px;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--akcents),var(--akcents2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:block;margin-bottom:8px;
+}
+.auth-tagline{color:var(--teksts3);font-size:14px;}
+.auth-tabs{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--robeza);border-radius:8px;overflow:hidden;}
+.auth-tab{
+  flex:1;padding:10px;text-align:center;cursor:pointer;
+  font-size:14px;font-weight:600;transition:all .15s;
+  background:transparent;color:var(--teksts3);border:none;font-family:var(--fonts);
+}
+.auth-tab.active{background:var(--akcents);color:#fff;}
+
+/* ════════════════════════════════
+   PANELIS
+════════════════════════════════ */
+#screen-dashboard .content{padding:28px;max-width:1000px;width:100%;margin:0 auto;}
+.dashboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.dashboard-title{font-size:26px;font-weight:800;letter-spacing:-0.5px;}
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.quiz-card{cursor:pointer;position:relative;}
+.quiz-card-title{font-size:17px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px;}
+.quiz-card-meta{font-size:12px;color:var(--teksts3);font-family:var(--monospace);margin-top:10px;}
+.quiz-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--robeza);}
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--teksts3);
+  grid-column:1/-1;
+}
+.empty-state .icon{font-size:48px;margin-bottom:16px;}
+.empty-state p{font-size:15px;margin-bottom:20px;}
+
+/* ════════════════════════════════
+   VIKTORĪNAS REDAKTORS
+════════════════════════════════ */
+#screen-editor .content{padding:28px;max-width:800px;width:100%;margin:0 auto;}
+.editor-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+.editor-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;flex:1;}
+.question-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
+.question-item{
+  background:var(--virsma);border:1px solid var(--robeza);
+  border-radius:var(--radiuss);padding:16px 20px;
+  display:flex;align-items:flex-start;gap:14px;
+  transition:border-color .15s;
+}
+.question-item:hover{border-color:var(--akcents);}
+.q-number{
+  width:28px;height:28px;border-radius:6px;background:var(--virsma2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--teksts3);flex-shrink:0;
+  font-family:var(--monospace);
+}
+.q-info{flex:1;}
+.q-text{font-size:15px;font-weight:600;margin-bottom:4px;}
+.q-meta{font-size:11px;color:var(--teksts3);font-family:var(--monospace);}
+.q-actions{display:flex;gap:6px;}
+.add-question-btn{
+  border:2px dashed var(--robeza);background:transparent;
+  width:100%;padding:18px;border-radius:var(--radiuss);
+  color:var(--teksts3);cursor:pointer;font-family:var(--fonts);
+  font-size:14px;font-weight:600;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.add-question-btn:hover{border-color:var(--akcents);color:var(--akcents);}
+
+/* ── Jautājuma logs ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  z-index:1000;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--virsma);border:1px solid var(--robeza);
+  border-radius:16px;width:100%;max-width:560px;max-height:90vh;
+  overflow-y:auto;padding:28px;
+}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.modal-title{font-size:18px;font-weight:700;}
+.close-btn{
+  background:transparent;border:none;color:var(--teksts3);
+  cursor:pointer;font-size:20px;padding:4px;line-height:1;
+}
+.close-btn:hover{color:var(--teksts);}
+.options-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.option-row{display:flex;align-items:center;gap:10px;}
+.option-row input[type=text]{flex:1;}
+.option-correct{
+  width:20px;height:20px;border-radius:4px;
+  background:var(--virsma2);border:1px solid var(--robeza);
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.option-correct.checked{background:var(--veiksme);border-color:var(--veiksme);}
+.option-remove{background:transparent;border:none;color:var(--teksts3);cursor:pointer;font-size:16px;padding:2px;}
+.option-remove:hover{color:var(--briesmas);}
+
+/* ════════════════════════════════
+   SAIMNIEKS
+════════════════════════════════ */
+#screen-host{background:var(--fons);}
+#screen-host .content{padding:28px;max-width:900px;width:100%;margin:0 auto;}
+.host-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+.pin-display{
+  background:var(--virsma);border:1px solid var(--robeza);
+  border-radius:var(--radiuss);padding:20px 28px;
+  display:flex;align-items:center;gap:20px;margin-bottom:24px;
+  flex-wrap:wrap;
+}
+.pin-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--teksts3);}
+.pin-code{
+  font-size:42px;font-weight:800;letter-spacing:8px;
+  font-family:var(--monospace);
+  background:linear-gradient(135deg,var(--akcents),var(--akcents2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.participants-panel{margin-bottom:24px;}
+.participants-panel h3{font-size:14px;font-weight:600;color:var(--teksts3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;}
+.participant-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  background:var(--virsma2);border:1px solid var(--robeza);
+  border-radius:20px;padding:5px 14px;font-size:13px;font-weight:600;
+  animation:chip-in .2s ease;
+}
+@keyframes chip-in{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+
+/* ── Jautājuma slaids (saimniekam) ── */
+.question-slide{
+  background:var(--virsma);border:1px solid var(--robeza);
+  border-radius:16px;padding:28px;margin-bottom:20px;
+}
+.question-progress{font-size:12px;color:var(--teksts3);font-family:var(--monospace);margin-bottom:12px;}
+.question-text{font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-0.3px;}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.answer-option{
+  padding:14px 18px;border-radius:10px;font-size:15px;font-weight:600;
+  border:1px solid var(--robeza);background:var(--virsma2);
+  display:flex;align-items:center;gap:10px;
+}
+.answer-option.correct{background:rgba(77,255,180,.15);border-color:var(--veiksme);color:var(--veiksme);}
+.answer-option.incorrect{opacity:.4;}
+.answer-option .opt-label{
+  width:24px;height:24px;border-radius:6px;background:var(--robeza);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  flex-shrink:0;font-family:var(--monospace);
+}
+.timer-bar{height:4px;background:var(--robeza);border-radius:2px;margin-bottom:20px;overflow:hidden;}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--akcents),var(--akcents2));border-radius:2px;}
+
+/* ── Līderu tabula ── */
+.leaderboard{display:flex;flex-direction:column;gap:8px;}
+.lb-row{
+  display:flex;align-items:center;gap:14px;
+  background:var(--virsma2);border-radius:8px;padding:12px 16px;
+}
+.lb-rank{width:28px;font-size:13px;font-weight:700;color:var(--teksts3);font-family:var(--monospace);}
+.lb-rank.gold{color:#ffd94d;}
+.lb-rank.silver{color:#c0c0c8;}
+.lb-rank.bronze{color:#cd7f32;}
+.lb-name{flex:1;font-weight:600;}
+.lb-score{font-family:var(--monospace);font-size:14px;font-weight:500;color:var(--akcents);}
+
+/* ── Statistikas josla ── */
+.stats-bar{
+  display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;
+}
+.stat-option-bar{
+  display:flex;align-items:center;gap:8px;flex:1;min-width:120px;
+}
+.stat-fill-wrap{flex:1;height:6px;background:var(--robeza);border-radius:3px;}
+.stat-fill{height:100%;background:var(--akcents);border-radius:3px;transition:width .4s ease;}
+.stat-fill.correct{background:var(--veiksme);}
+.stat-label{font-size:11px;color:var(--teksts3);font-family:var(--monospace);width:16px;}
+
+/* ════════════════════════════════
+   SPĒLĒTĀJS
+════════════════════════════════ */
+#screen-join{
+  justify-content:center;align-items:center;
+  background:var(--fons);
+}
+.join-box{width:100%;max-width:380px;padding:20px;text-align:center;}
+.join-title{font-size:32px;font-weight:800;margin-bottom:8px;letter-spacing:-1px;}
+.join-sub{color:var(--teksts3);margin-bottom:32px;font-size:15px;}
+.pin-input{
+  font-size:32px !important;letter-spacing:10px;text-align:center;
+  font-family:var(--monospace) !important;font-weight:700 !important;
+}
+
+#screen-lobby{
+  justify-content:center;align-items:center;
+  background:var(--fons);text-align:center;
+}
+.lobby-box{width:100%;max-width:480px;padding:20px;}
+.lobby-quiz-title{font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px;}
+.lobby-waiting{color:var(--teksts3);font-size:14px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.lobby-players{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;}
+.lobby-me{
+  font-size:18px;font-weight:700;
+  background:linear-gradient(135deg,var(--akcents),var(--akcents2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:20px;
+}
+
+#screen-player-game{background:var(--fons);justify-content:center;align-items:center;}
+.player-game-box{width:100%;max-width:520px;padding:20px;}
+.player-score{
+  font-family:var(--monospace);font-size:12px;color:var(--teksts3);
+  text-align:right;margin-bottom:16px;
+}
+.player-question-text{font-size:20px;font-weight:700;margin-bottom:20px;letter-spacing:-0.3px;line-height:1.3;}
+.player-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.player-option{
+  padding:16px;border-radius:10px;border:2px solid var(--robeza);
+  background:var(--virsma);cursor:pointer;font-family:var(--fonts);
+  font-size:14px;font-weight:600;color:var(--teksts);
+  text-align:left;transition:all .15s;line-height:1.3;
+  display:flex;align-items:center;gap:10px;
+}
+.player-option:hover:not(:disabled){border-color:var(--akcents);background:rgba(124,107,255,.1);}
+.player-option:disabled{cursor:not-allowed;}
+.player-option.selected{border-color:var(--akcents);background:rgba(124,107,255,.15);}
+.player-option.correct{border-color:var(--veiksme);background:rgba(77,255,180,.15);color:var(--veiksme);}
+.player-option.incorrect{border-color:var(--briesmas);background:rgba(255,77,109,.1);color:var(--briesmas);}
+.player-option .opt-label{
+  width:22px;height:22px;border-radius:5px;background:var(--robeza);
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+  flex-shrink:0;font-family:var(--monospace);
+}
+.result-feedback{
+  text-align:center;padding:28px 20px;
+}
+.result-emoji{font-size:52px;margin-bottom:12px;}
+.result-points{font-size:28px;font-weight:800;letter-spacing:-0.5px;}
+.result-points.correct{color:var(--veiksme);}
+.result-points.incorrect{color:var(--briesmas);}
+.result-total{font-size:14px;color:var(--teksts3);margin-top:6px;font-family:var(--monospace);}
+.waiting-next{color:var(--teksts3);font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;}
+
+#screen-final{background:var(--fons);justify-content:center;align-items:center;text-align:center;}
+.final-box{width:100%;max-width:520px;padding:20px;}
+.final-title{font-size:32px;font-weight:800;margin-bottom:4px;letter-spacing:-1px;}
+.final-sub{color:var(--teksts3);margin-bottom:28px;}
+
+/* ── Palīgklases ── */
+.flex{display:flex;}.flex-col{flex-direction:column;}.gap-2{gap:8px;}.gap-3{gap:12px;}.gap-4{gap:16px;}
+.mt-2{margin-top:8px;}.mt-3{margin-top:12px;}.mt-4{margin-top:16px;}.mt-6{margin-top:24px;}
+.mb-2{margin-bottom:8px;}.mb-4{margin-bottom:16px;}.mb-6{margin-bottom:24px;}
+.text-sm{font-size:13px;}.text-xs{font-size:11px;}.text-muted{color:var(--teksts3);}.text-mono{font-family:var(--monospace);}
+.text-center{text-align:center;}.fw-bold{font-weight:700;}
+.w-full{width:100%;}
+.hidden{display:none!important;}

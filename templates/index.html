@@ -1,470 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lv">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QuizBlitz</title>
+<title>QuizBlitz — viktorīnas tiešraidē</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --bg: #0a0a0f;
-  --surface: #12121a;
-  --surface2: #1a1a26;
-  --border: #2a2a3d;
-  --accent: #7c6bff;
-  --accent2: #ff6b9d;
-  --accent3: #6bffd4;
-  --text: #e8e8f0;
-  --text2: #888899;
-  --text3: #555566;
-  --danger: #ff4d6d;
-  --success: #4dffb4;
-  --warn: #ffd94d;
-  --radius: 12px;
-  --font: 'Syne', sans-serif;
-  --mono: 'DM Mono', monospace;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{
-  background:var(--bg);color:var(--text);font-family:var(--font);
-  font-size:15px;line-height:1.5;
-}
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124,107,255,.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,107,157,.05) 0%, transparent 60%);
-  pointer-events:none;z-index:0;
-}
-#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;overflow:hidden;}
-
-/* ── Screens ── */
-.screen{display:none;flex-direction:column;height:100%;overflow-y:auto;}
-.screen.active{display:flex;}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-
-/* ── Nav ── */
-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 28px;border-bottom:1px solid var(--border);
-  background:rgba(10,10,15,.8);backdrop-filter:blur(12px);
-  position:sticky;top:0;z-index:100;flex-shrink:0;
-}
-.logo{
-  font-size:20px;font-weight:800;letter-spacing:-0.5px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.nav-right{display:flex;gap:12px;align-items:center;}
-.user-email{font-size:12px;color:var(--text3);font-family:var(--mono);}
-
-/* ── Buttons ── */
-.btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 20px;border-radius:8px;border:none;cursor:pointer;
-  font-family:var(--font);font-weight:600;font-size:14px;
-  transition:all .15s ease;user-select:none;text-decoration:none;
-}
-.btn:disabled{opacity:.4;cursor:not-allowed;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:hover:not(:disabled){background:#9585ff;transform:translateY(-1px);}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
-.btn-ghost:hover:not(:disabled){background:var(--surface2);color:var(--text);}
-.btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(255,77,109,.3);}
-.btn-danger:hover:not(:disabled){background:rgba(255,77,109,.1);}
-.btn-success{background:var(--success);color:var(--bg);}
-.btn-success:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);}
-.btn-lg{padding:14px 28px;font-size:16px;}
-.btn-sm{padding:6px 14px;font-size:13px;}
-.btn-icon{padding:8px;border-radius:6px;}
-
-/* ── Forms ── */
-.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;}
-input,textarea,select{
-  background:var(--surface2);border:1px solid var(--border);
-  color:var(--text);font-family:var(--font);font-size:15px;
-  padding:11px 14px;border-radius:8px;outline:none;width:100%;
-  transition:border-color .15s;
-}
-input:focus,textarea:focus,select:focus{border-color:var(--accent);}
-input::placeholder,textarea::placeholder{color:var(--text3);}
-textarea{resize:vertical;min-height:80px;}
-select{appearance:none;}
-
-/* ── Cards ── */
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:24px;
-}
-.card-hover{transition:border-color .15s,transform .15s;}
-.card-hover:hover{border-color:var(--accent);transform:translateY(-2px);}
-
-/* ── Tags / Badges ── */
-.badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
-  letter-spacing:.05em;text-transform:uppercase;font-family:var(--mono);
-}
-.badge-draft{background:rgba(255,217,77,.1);color:var(--warn);}
-.badge-published{background:rgba(77,255,180,.1);color:var(--success);}
-.badge-waiting{background:rgba(124,107,255,.1);color:var(--accent);}
-.badge-active{background:rgba(77,255,180,.15);color:var(--success);animation:pulse-badge 1.5s ease-in-out infinite;}
-.badge-finished{background:rgba(136,136,153,.1);color:var(--text3);}
-@keyframes pulse-badge{0%,100%{opacity:1;}50%{opacity:.6;}}
-
-/* ── Alerts ── */
-.alert{
-  padding:12px 16px;border-radius:8px;font-size:14px;margin-bottom:16px;
-  border:1px solid;display:flex;align-items:center;gap:10px;
-}
-.alert-error{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.3);color:var(--danger);}
-.alert-success{background:rgba(77,255,180,.1);border-color:rgba(77,255,180,.3);color:var(--success);}
-
-/* ── Loading ── */
-.spinner{
-  width:20px;height:20px;border:2px solid var(--border);
-  border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-overlay{
-  display:flex;align-items:center;justify-content:center;
-  height:200px;flex-direction:column;gap:12px;color:var(--text3);
-}
-
-/* ── Divider ── */
-.divider{height:1px;background:var(--border);margin:24px 0;}
-
-/* ════════════════════════════════
-   AUTH SCREEN
-════════════════════════════════ */
-#screen-auth{
-  justify-content:center;align-items:center;
-  background:var(--bg);
-}
-.auth-box{width:100%;max-width:420px;padding:20px;}
-.auth-header{text-align:center;margin-bottom:40px;}
-.auth-logo{
-  font-size:36px;font-weight:800;letter-spacing:-1px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  display:block;margin-bottom:8px;
-}
-.auth-tagline{color:var(--text3);font-size:14px;}
-.auth-tabs{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-.auth-tab{
-  flex:1;padding:10px;text-align:center;cursor:pointer;
-  font-size:14px;font-weight:600;transition:all .15s;
-  background:transparent;color:var(--text3);border:none;font-family:var(--font);
-}
-.auth-tab.active{background:var(--accent);color:#fff;}
-
-/* ════════════════════════════════
-   DASHBOARD SCREEN
-════════════════════════════════ */
-#screen-dashboard .content{padding:28px;max-width:1000px;width:100%;margin:0 auto;}
-.dashboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
-.dashboard-title{font-size:26px;font-weight:800;letter-spacing:-0.5px;}
-.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
-.quiz-card{cursor:pointer;position:relative;}
-.quiz-card-title{font-size:17px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px;}
-.quiz-card-meta{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:10px;}
-.quiz-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
-.empty-state{
-  text-align:center;padding:60px 20px;color:var(--text3);
-  grid-column:1/-1;
-}
-.empty-state .icon{font-size:48px;margin-bottom:16px;}
-.empty-state p{font-size:15px;margin-bottom:20px;}
-
-/* ════════════════════════════════
-   QUIZ EDITOR SCREEN
-════════════════════════════════ */
-#screen-editor .content{padding:28px;max-width:800px;width:100%;margin:0 auto;}
-.editor-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
-.editor-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;flex:1;}
-.question-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
-.question-item{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:16px 20px;
-  display:flex;align-items:flex-start;gap:14px;
-  transition:border-color .15s;
-}
-.question-item:hover{border-color:var(--accent);}
-.q-number{
-  width:28px;height:28px;border-radius:6px;background:var(--surface2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;color:var(--text3);flex-shrink:0;
-  font-family:var(--mono);
-}
-.q-info{flex:1;}
-.q-text{font-size:15px;font-weight:600;margin-bottom:4px;}
-.q-meta{font-size:11px;color:var(--text3);font-family:var(--mono);}
-.q-actions{display:flex;gap:6px;}
-.add-question-btn{
-  border:2px dashed var(--border);background:transparent;
-  width:100%;padding:18px;border-radius:var(--radius);
-  color:var(--text3);cursor:pointer;font-family:var(--font);
-  font-size:14px;font-weight:600;transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.add-question-btn:hover{border-color:var(--accent);color:var(--accent);}
-
-/* ── Question Modal ── */
-.modal-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
-  z-index:1000;align-items:center;justify-content:center;padding:20px;
-}
-.modal-overlay.open{display:flex;}
-.modal{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:16px;width:100%;max-width:560px;max-height:90vh;
-  overflow-y:auto;padding:28px;
-}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-.modal-title{font-size:18px;font-weight:700;}
-.close-btn{
-  background:transparent;border:none;color:var(--text3);
-  cursor:pointer;font-size:20px;padding:4px;line-height:1;
-}
-.close-btn:hover{color:var(--text);}
-.options-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-.option-row{display:flex;align-items:center;gap:10px;}
-.option-row input[type=text]{flex:1;}
-.option-correct{
-  width:20px;height:20px;border-radius:4px;
-  background:var(--surface2);border:1px solid var(--border);
-  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
-}
-.option-correct.checked{background:var(--success);border-color:var(--success);}
-.option-remove{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px;}
-.option-remove:hover{color:var(--danger);}
-
-/* ════════════════════════════════
-   HOST SCREEN
-════════════════════════════════ */
-#screen-host{background:var(--bg);}
-#screen-host .content{padding:28px;max-width:900px;width:100%;margin:0 auto;}
-.host-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
-.pin-display{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:20px 28px;
-  display:flex;align-items:center;gap:20px;margin-bottom:24px;
-  flex-wrap:wrap;
-}
-.pin-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
-.pin-code{
-  font-size:42px;font-weight:800;letter-spacing:8px;
-  font-family:var(--mono);
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.participants-panel{margin-bottom:24px;}
-.participants-panel h3{font-size:14px;font-weight:600;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;}
-.participant-chips{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:20px;padding:5px 14px;font-size:13px;font-weight:600;
-  animation:chip-in .2s ease;
-}
-@keyframes chip-in{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
-
-/* ── Question slide (host view) ── */
-.question-slide{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:16px;padding:28px;margin-bottom:20px;
-}
-.question-progress{font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:12px;}
-.question-text{font-size:22px;font-weight:700;margin-bottom:20px;letter-spacing:-0.3px;}
-.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.answer-option{
-  padding:14px 18px;border-radius:10px;font-size:15px;font-weight:600;
-  border:1px solid var(--border);background:var(--surface2);
-  display:flex;align-items:center;gap:10px;
-}
-.answer-option.correct{background:rgba(77,255,180,.15);border-color:var(--success);color:var(--success);}
-.answer-option.incorrect{opacity:.4;}
-.answer-option .opt-label{
-  width:24px;height:24px;border-radius:6px;background:var(--border);
-  display:flex;align-items:center;justify-content:center;font-size:11px;
-  flex-shrink:0;font-family:var(--mono);
-}
-.timer-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:20px;overflow:hidden;}
-.timer-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
-
-/* ── Leaderboard ── */
-.leaderboard{display:flex;flex-direction:column;gap:8px;}
-.lb-row{
-  display:flex;align-items:center;gap:14px;
-  background:var(--surface2);border-radius:8px;padding:12px 16px;
-}
-.lb-rank{width:28px;font-size:13px;font-weight:700;color:var(--text3);font-family:var(--mono);}
-.lb-rank.gold{color:#ffd94d;}
-.lb-rank.silver{color:#c0c0c8;}
-.lb-rank.bronze{color:#cd7f32;}
-.lb-name{flex:1;font-weight:600;}
-.lb-score{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--accent);}
-
-/* ── Stats bar ── */
-.stats-bar{
-  display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;
-}
-.stat-option-bar{
-  display:flex;align-items:center;gap:8px;flex:1;min-width:120px;
-}
-.stat-fill-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;}
-.stat-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease;}
-.stat-fill.correct{background:var(--success);}
-.stat-label{font-size:11px;color:var(--text3);font-family:var(--mono);width:16px;}
-
-/* ════════════════════════════════
-   PLAYER SCREENS
-════════════════════════════════ */
-#screen-join{
-  justify-content:center;align-items:center;
-  background:var(--bg);
-}
-.join-box{width:100%;max-width:380px;padding:20px;text-align:center;}
-.join-title{font-size:32px;font-weight:800;margin-bottom:8px;letter-spacing:-1px;}
-.join-sub{color:var(--text3);margin-bottom:32px;font-size:15px;}
-.pin-input{
-  font-size:32px !important;letter-spacing:10px;text-align:center;
-  font-family:var(--mono) !important;font-weight:700 !important;
-}
-
-#screen-lobby{
-  justify-content:center;align-items:center;
-  background:var(--bg);text-align:center;
-}
-.lobby-box{width:100%;max-width:480px;padding:20px;}
-.lobby-quiz-title{font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px;}
-.lobby-waiting{color:var(--text3);font-size:14px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:8px;}
-.lobby-players{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;}
-.lobby-me{
-  font-size:18px;font-weight:700;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:20px;
-}
-
-#screen-player-game{background:var(--bg);justify-content:center;align-items:center;}
-.player-game-box{width:100%;max-width:520px;padding:20px;}
-.player-score{
-  font-family:var(--mono);font-size:12px;color:var(--text3);
-  text-align:right;margin-bottom:16px;
-}
-.player-question-text{font-size:20px;font-weight:700;margin-bottom:20px;letter-spacing:-0.3px;line-height:1.3;}
-.player-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.player-option{
-  padding:16px;border-radius:10px;border:2px solid var(--border);
-  background:var(--surface);cursor:pointer;font-family:var(--font);
-  font-size:14px;font-weight:600;color:var(--text);
-  text-align:left;transition:all .15s;line-height:1.3;
-  display:flex;align-items:center;gap:10px;
-}
-.player-option:hover:not(:disabled){border-color:var(--accent);background:rgba(124,107,255,.1);}
-.player-option:disabled{cursor:not-allowed;}
-.player-option.selected{border-color:var(--accent);background:rgba(124,107,255,.15);}
-.player-option.correct{border-color:var(--success);background:rgba(77,255,180,.15);color:var(--success);}
-.player-option.incorrect{border-color:var(--danger);background:rgba(255,77,109,.1);color:var(--danger);}
-.player-option .opt-label{
-  width:22px;height:22px;border-radius:5px;background:var(--border);
-  display:flex;align-items:center;justify-content:center;font-size:10px;
-  flex-shrink:0;font-family:var(--mono);
-}
-.result-feedback{
-  text-align:center;padding:28px 20px;
-}
-.result-emoji{font-size:52px;margin-bottom:12px;}
-.result-points{font-size:28px;font-weight:800;letter-spacing:-0.5px;}
-.result-points.correct{color:var(--success);}
-.result-points.incorrect{color:var(--danger);}
-.result-total{font-size:14px;color:var(--text3);margin-top:6px;font-family:var(--mono);}
-.waiting-next{color:var(--text3);font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;}
-
-#screen-final{background:var(--bg);justify-content:center;align-items:center;text-align:center;}
-.final-box{width:100%;max-width:520px;padding:20px;}
-.final-title{font-size:32px;font-weight:800;margin-bottom:4px;letter-spacing:-1px;}
-.final-sub{color:var(--text3);margin-bottom:28px;}
-
-/* ── Misc utils ── */
-.flex{display:flex;}.flex-col{flex-direction:column;}.gap-2{gap:8px;}.gap-3{gap:12px;}.gap-4{gap:16px;}
-.mt-2{margin-top:8px;}.mt-3{margin-top:12px;}.mt-4{margin-top:16px;}.mt-6{margin-top:24px;}
-.mb-2{margin-bottom:8px;}.mb-4{margin-bottom:16px;}.mb-6{margin-bottom:24px;}
-.text-sm{font-size:13px;}.text-xs{font-size:11px;}.text-muted{color:var(--text3);}.text-mono{font-family:var(--mono);}
-.text-center{text-align:center;}.fw-bold{font-weight:700;}
-.w-full{width:100%;}
-.hidden{display:none!important;}
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
 </head>
 <body>
 <div id="app">
 
-<!-- ══════════════════════════════════
-     AUTH
-══════════════════════════════════ -->
 <div id="screen-auth" class="screen">
   <div class="auth-box">
     <div class="auth-header">
       <span class="auth-logo">QuizBlitz</span>
-      <p class="auth-tagline">Live quiz battles for everyone</p>
+      <p class="auth-tagline">Viktorīnas tiešraidē ikvienam</p>
     </div>
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign in</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Pierakstīties</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Reģistrēties</button>
     </div>
     <div id="auth-error" class="alert alert-error hidden"></div>
     <div id="auth-form-login">
       <div class="form-group">
-        <label>Email</label>
+        <label>E-pasts</label>
         <input type="email" id="login-email" placeholder="demo@quiz.com" autocomplete="email"/>
       </div>
       <div class="form-group">
-        <label>Password</label>
+        <label>Parole</label>
         <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
       </div>
-      <button class="btn btn-primary w-full btn-lg" onclick="doLogin()">Sign in →</button>
+      <button class="btn btn-primary w-full btn-lg" onclick="doLogin()">Pierakstīties →</button>
       <p class="text-center text-sm text-muted mt-3">Demo: demo@quiz.com / password123</p>
     </div>
     <div id="auth-form-register" class="hidden">
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"/>
+        <label>E-pasts</label>
+        <input type="email" id="reg-email" placeholder="tu@piemers.lv" autocomplete="email"/>
       </div>
       <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="reg-password" placeholder="Min 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/>
+        <label>Parole</label>
+        <input type="password" id="reg-password" placeholder="Vismaz 8 rakstzīmes" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/>
       </div>
-      <button class="btn btn-primary w-full btn-lg" onclick="doRegister()">Create account →</button>
+      <button class="btn btn-primary w-full btn-lg" onclick="doRegister()">Izveidot kontu →</button>
     </div>
     <div class="divider"></div>
-    <p class="text-center text-sm text-muted">Playing? <a href="#" onclick="showScreen('screen-join');return false;" style="color:var(--accent);text-decoration:none;font-weight:600;">Join a game</a></p>
+    <p class="text-center text-sm text-muted">Spēlē? <a href="#" onclick="showScreen('screen-join');return false;" style="color:var(--akcents);text-decoration:none;font-weight:600;">Pievienoties spēlei</a></p>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     DASHBOARD
-══════════════════════════════════ -->
 <div id="screen-dashboard" class="screen">
   <nav>
     <span class="logo">QuizBlitz</span>
     <div class="nav-right">
       <span class="user-email" id="nav-email"></span>
-      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Iziet</button>
     </div>
   </nav>
   <div class="content">
     <div class="dashboard-header">
-      <h1 class="dashboard-title">My Quizzes</h1>
-      <button class="btn btn-primary" onclick="openCreateQuizModal()">+ New Quiz</button>
+      <h1 class="dashboard-title">Manas viktorīnas</h1>
+      <button class="btn btn-primary" onclick="openCreateQuizModal()">+ Jauna viktorīna</button>
     </div>
     <div id="quiz-grid" class="quiz-grid">
       <div class="loading-overlay"><div class="spinner"></div></div>
@@ -472,14 +69,11 @@ select{appearance:none;}
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     EDITOR
-══════════════════════════════════ -->
 <div id="screen-editor" class="screen">
   <nav>
     <span class="logo">QuizBlitz</span>
     <div class="nav-right">
-      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-dashboard');loadDashboard()">← Back</button>
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-dashboard');loadDashboard()">← Atpakaļ</button>
     </div>
   </nav>
   <div class="content">
@@ -490,54 +84,49 @@ select{appearance:none;}
           <span id="editor-status-text" class="text-xs text-muted text-mono"></span>
         </div>
         <div id="editor-title-wrap" style="display:flex;align-items:center;gap:10px;">
-          <h2 class="editor-title" id="editor-title">Quiz Title</h2>
-          <button class="btn btn-ghost btn-sm" onclick="editQuizMeta()">Edit</button>
+          <h2 class="editor-title" id="editor-title">Viktorīnas nosaukums</h2>
+          <button class="btn btn-ghost btn-sm" onclick="editQuizMeta()">Labot</button>
         </div>
       </div>
       <div class="flex gap-2">
         <button id="btn-publish" class="btn btn-ghost btn-sm" onclick="togglePublish()"></button>
-        <button class="btn btn-primary btn-sm" onclick="startHostSession()" id="btn-host">▶ Host</button>
+        <button class="btn btn-primary btn-sm" onclick="startHostSession()" id="btn-host">▶ Vadīt spēli</button>
       </div>
     </div>
 
     <div id="question-list" class="question-list"></div>
     <button class="add-question-btn" onclick="openQuestionModal()">
-      <span>+</span> Add question
+      <span>+</span> Pievienot jautājumu
     </button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     HOST
-══════════════════════════════════ -->
 <div id="screen-host" class="screen">
   <nav>
     <span class="logo">QuizBlitz</span>
     <div class="nav-right">
-      <span id="host-status-badge" class="badge badge-waiting">Waiting</span>
-      <button class="btn btn-ghost btn-sm" onclick="endAndLeave()">End</button>
+      <span id="host-status-badge" class="badge badge-waiting">Gaida</span>
+      <button class="btn btn-ghost btn-sm" onclick="endAndLeave()">Beigt</button>
     </div>
   </nav>
   <div class="content">
-    <!-- Lobby -->
     <div id="host-lobby">
       <div class="pin-display">
         <div>
-          <div class="pin-label">Game PIN</div>
+          <div class="pin-label">Spēles PIN</div>
           <div class="pin-code" id="host-pin">------</div>
         </div>
         <div style="flex:1"></div>
-        <button class="btn btn-success btn-lg" id="btn-start-game" onclick="hostStartGame()" disabled>Start game</button>
+        <button class="btn btn-success btn-lg" id="btn-start-game" onclick="hostStartGame()" disabled>Sākt spēli</button>
       </div>
       <div class="participants-panel">
-        <h3>Players <span id="participant-count" class="text-mono">(0)</span></h3>
+        <h3>Spēlētāji <span id="participant-count" class="text-mono">(0)</span></h3>
         <div id="host-chips" class="participant-chips">
-          <span class="text-sm text-muted">Waiting for players to join…</span>
+          <span class="text-sm text-muted">Gaida, kamēr spēlētāji pievienojas…</span>
         </div>
       </div>
     </div>
 
-    <!-- Active question -->
     <div id="host-question" class="hidden">
       <div class="timer-bar"><div class="timer-fill" id="host-timer-fill" style="width:100%"></div></div>
       <div class="question-slide">
@@ -547,55 +136,45 @@ select{appearance:none;}
         <div class="stats-bar mt-4" id="host-q-stats" style="display:none"></div>
       </div>
       <div class="flex gap-2">
-        <button class="btn btn-ghost" onclick="hostEndQuestion()" id="btn-end-q">Show results</button>
-        <button class="btn btn-primary hidden" onclick="hostNextQuestion()" id="btn-next-q">Next question →</button>
-        <button class="btn btn-success hidden" onclick="hostEndGame()" id="btn-finish-game">Finish game</button>
+        <button class="btn btn-ghost" onclick="hostEndQuestion()" id="btn-end-q">Rādīt rezultātus</button>
+        <button class="btn btn-primary hidden" onclick="hostNextQuestion()" id="btn-next-q">Nākamais jautājums →</button>
+        <button class="btn btn-success hidden" onclick="hostEndGame()" id="btn-finish-game">Pabeigt spēli</button>
       </div>
     </div>
 
-    <!-- Leaderboard between questions -->
     <div id="host-leaderboard-panel" class="hidden">
-      <h3 class="mb-4 fw-bold" style="font-size:18px">Leaderboard</h3>
+      <h3 class="mb-4 fw-bold" style="font-size:18px">Līderu tabula</h3>
       <div id="host-leaderboard" class="leaderboard mb-4"></div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     JOIN (Player)
-══════════════════════════════════ -->
 <div id="screen-join" class="screen">
   <div class="join-box">
-    <div class="join-title">🎮 Join</div>
-    <p class="join-sub">Enter the game PIN to join</p>
+    <div class="join-title">🎮 Pievienoties</div>
+    <p class="join-sub">Ievadi spēles PIN kodu</p>
     <div id="join-error" class="alert alert-error hidden"></div>
     <div class="form-group">
       <input type="text" class="pin-input" id="join-pin" maxlength="6" placeholder="000000" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"/>
     </div>
-    <button class="btn btn-primary w-full btn-lg mt-3" onclick="doJoinPin()">Find game →</button>
-    <button class="btn btn-ghost w-full mt-2" onclick="showScreen('screen-auth')">← Back</button>
+    <button class="btn btn-primary w-full btn-lg mt-3" onclick="doJoinPin()">Atrast spēli →</button>
+    <button class="btn btn-ghost w-full mt-2" onclick="showScreen('screen-auth')">← Atpakaļ</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     LOBBY (Player)
-══════════════════════════════════ -->
 <div id="screen-lobby" class="screen">
   <div class="lobby-box">
-    <div class="lobby-quiz-title" id="lobby-quiz-title">Quiz Title</div>
+    <div class="lobby-quiz-title" id="lobby-quiz-title">Viktorīna</div>
     <div class="lobby-me" id="lobby-me"></div>
-    <div class="lobby-waiting"><div class="spinner"></div> Waiting for host to start…</div>
+    <div class="lobby-waiting"><div class="spinner"></div> Gaida, kad saimnieks sāks…</div>
     <div id="lobby-players" class="lobby-players"></div>
-    <p class="text-sm text-muted">Players joined: <span id="lobby-count" class="text-mono">0</span></p>
+    <p class="text-sm text-muted">Pievienojušies: <span id="lobby-count" class="text-mono">0</span></p>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     PLAYER GAME
-══════════════════════════════════ -->
 <div id="screen-player-game" class="screen">
   <div class="player-game-box">
-    <div class="player-score">Score: <span id="player-score" class="fw-bold text-accent" style="color:var(--accent)">0</span></div>
+    <div class="player-score">Punkti: <span id="player-score" class="fw-bold text-accent" style="color:var(--akcents)">0</span></div>
     <div class="timer-bar"><div class="timer-fill" id="player-timer-fill" style="width:100%"></div></div>
     <div id="player-question-area">
       <div class="player-question-text" id="player-q-text"></div>
@@ -609,1043 +188,120 @@ select{appearance:none;}
       </div>
       
       <div id="player-mid-leaderboard-panel" class="hidden" style="margin-bottom: 24px;">
-        <h3 class="mb-3 text-center text-muted" style="font-size:13px; text-transform:uppercase; letter-spacing:1px;">Current Standings</h3>
+        <h3 class="mb-3 text-center text-muted" style="font-size:13px; text-transform:uppercase; letter-spacing:1px;">Pašreizējie rezultāti</h3>
         <div id="player-mid-leaderboard" class="leaderboard"></div>
       </div>
       
-      <div class="waiting-next"><div class="spinner"></div> Waiting for next question…</div>
+      <div class="waiting-next"><div class="spinner"></div> Gaida nākamo jautājumu…</div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     FINAL (Player)
-══════════════════════════════════ -->
 <div id="screen-final" class="screen">
   <div class="final-box">
-    <div class="final-title">🏁 Game Over!</div>
-    <p class="final-sub">Here are the final results</p>
+    <div class="final-title">🏁 Spēle beigusies!</div>
+    <p class="final-sub">Gala rezultāti</p>
     <div id="final-leaderboard" class="leaderboard mb-6"></div>
-    <button class="btn btn-primary" onclick="showScreen('screen-join')">Play again</button>
+    <button class="btn btn-primary" onclick="showScreen('screen-join')">Spēlēt vēlreiz</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     MODALS
-══════════════════════════════════ -->
-<!-- Create Quiz Modal -->
 <div class="modal-overlay" id="modal-create-quiz">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">New Quiz</span>
+      <span class="modal-title">Jauna viktorīna</span>
       <button class="close-btn" onclick="closeModal('modal-create-quiz')">×</button>
     </div>
     <div id="create-quiz-error" class="alert alert-error hidden"></div>
     <div class="form-group">
-      <label>Title</label>
-      <input type="text" id="new-quiz-title" placeholder="My Awesome Quiz"/>
+      <label>Nosaukums</label>
+      <input type="text" id="new-quiz-title" placeholder="Mana foršā viktorīna"/>
     </div>
     <div class="flex gap-2" style="justify-content:flex-end;margin-top:8px;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-create-quiz')">Cancel</button>
-      <button class="btn btn-primary" onclick="doCreateQuiz()">Create</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-quiz')">Atcelt</button>
+      <button class="btn btn-primary" onclick="doCreateQuiz()">Izveidot</button>
     </div>
   </div>
 </div>
 
-<!-- Edit Quiz Meta Modal -->
 <div class="modal-overlay" id="modal-edit-meta">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Edit Quiz</span>
+      <span class="modal-title">Labot viktorīnu</span>
       <button class="close-btn" onclick="closeModal('modal-edit-meta')">×</button>
     </div>
     <div class="form-group">
-      <label>Title</label>
+      <label>Nosaukums</label>
       <input type="text" id="meta-title"/>
     </div>
     <div class="form-group">
-      <label>Description</label>
-      <textarea id="meta-desc" placeholder="Optional description…"></textarea>
+      <label>Apraksts</label>
+      <textarea id="meta-desc" placeholder="Neobligāts apraksts…"></textarea>
     </div>
     <div class="flex gap-2" style="justify-content:flex-end;margin-top:8px;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-edit-meta')">Cancel</button>
-      <button class="btn btn-primary" onclick="doSaveMeta()">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-meta')">Atcelt</button>
+      <button class="btn btn-primary" onclick="doSaveMeta()">Saglabāt</button>
     </div>
   </div>
 </div>
 
-<!-- Add/Edit Question Modal -->
 <div class="modal-overlay" id="modal-question">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title" id="q-modal-title">Add Question</span>
+      <span class="modal-title" id="q-modal-title">Jauns jautājums</span>
       <button class="close-btn" onclick="closeModal('modal-question')">×</button>
     </div>
     <div id="q-modal-error" class="alert alert-error hidden"></div>
     <div class="form-group">
-      <label>Question text</label>
-      <textarea id="q-text" placeholder="What is the capital of France?"></textarea>
+      <label>Jautājuma teksts</label>
+      <textarea id="q-text" placeholder="Kāds ir Francijas galvaspilsētas nosaukums?"></textarea>
     </div>
     <div class="flex gap-3" style="flex-wrap:wrap;">
       <div class="form-group" style="flex:1;min-width:140px;">
-        <label>Type</label>
+        <label>Tips</label>
         <select id="q-type" onchange="renderOptionFields()">
-          <option value="SINGLE_CHOICE">Single choice</option>
-          <option value="TRUE_FALSE">True / False</option>
+          <option value="SINGLE_CHOICE">Viena pareizā atbilde</option>
+          <option value="TRUE_FALSE">Patiess / Nepatiess</option>
         </select>
       </div>
       <div class="form-group" style="flex:1;min-width:140px;">
-        <label>Time limit (s)</label>
+        <label>Laika limits (s)</label>
         <input type="number" id="q-time" value="20" min="5" max="120"/>
       </div>
       <div class="form-group" style="flex:1;min-width:140px;">
-        <label>Points</label>
+        <label>Punkti</label>
         <input type="number" id="q-points" value="1000" min="100" step="100"/>
       </div>
     </div>
     <div class="form-group">
-      <label>Answer options <span class="text-muted text-xs">(✓ = correct)</span></label>
+      <label>Atbilžu varianti <span class="text-muted text-xs">(✓ = pareizais)</span></label>
       <div id="options-list" class="options-list"></div>
-      <button class="btn btn-ghost btn-sm mt-2" id="btn-add-option" onclick="addOptionField()">+ Add option</button>
+      <button class="btn btn-ghost btn-sm mt-2" id="btn-add-option" onclick="addOptionField()">+ Pievienot variantu</button>
     </div>
     <div class="flex gap-2" style="justify-content:flex-end;margin-top:8px;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-question')">Cancel</button>
-      <button class="btn btn-primary" onclick="doSaveQuestion()">Save question</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-question')">Atcelt</button>
+      <button class="btn btn-primary" onclick="doSaveQuestion()">Saglabāt jautājumu</button>
     </div>
   </div>
 </div>
 
-<!-- Nickname Modal -->
 <div class="modal-overlay" id="modal-nickname">
   <div class="modal" style="max-width:380px;text-align:center;">
     <div class="modal-header">
-      <span class="modal-title" id="nick-quiz-title-modal">Join Quiz</span>
+      <span class="modal-title" id="nick-quiz-title-modal">Pievienoties viktorīnai</span>
       <button class="close-btn" onclick="closeModal('modal-nickname');showScreen('screen-join')">×</button>
     </div>
     <div id="nick-error" class="alert alert-error hidden"></div>
     <div class="form-group">
-      <label>Your nickname</label>
-      <input type="text" id="nickname-input" placeholder="CoolPlayer42" maxlength="20" onkeydown="if(event.key==='Enter')doIdentify()"/>
+      <label>Tavs segvārds</label>
+      <input type="text" id="nickname-input" placeholder="SuperSpēlētājs" maxlength="20" onkeydown="if(event.key==='Enter')doIdentify()"/>
     </div>
-    <button class="btn btn-primary w-full btn-lg" onclick="doIdentify()">Join game →</button>
+    <button class="btn btn-primary w-full btn-lg" onclick="doIdentify()">Pievienoties spēlei →</button>
   </div>
 </div>
 
 </div><!-- #app -->
 
-<script>
-// ══════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════
-const S = {
-  token: null,
-  userEmail: null,
-  currentQuiz: null,
-
-  // host
-  hostSessionId: null,
-  hostEventSource: null,
-  hostCurrentQ: null,
-  hostTimerInterval: null,
-
-  // player
-  playerToken: null,
-  playerSessionId: null,
-  playerEventSource: null,
-  playerScore: 0,
-  playerCurrentQId: null,
-  playerTimerInterval: null,
-
-  // pending join
-  pendingSessionId: null,
-  pendingQuizTitle: null,
-};
-
-// ══════════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = sessionStorage.getItem('qb_token');
-  const email = sessionStorage.getItem('qb_email');
-  if (saved) {
-    S.token = saved;
-    S.userEmail = email;
-    document.getElementById('nav-email').textContent = email || '';
-    showScreen('screen-dashboard');
-    loadDashboard();
-  } else {
-    showScreen('screen-auth');
-  }
-});
-
-// ══════════════════════════════════════════════════════════════
-// SCREEN MANAGEMENT
-// ══════════════════════════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// ══════════════════════════════════════════════════════════════
-// API HELPERS
-// ══════════════════════════════════════════════════════════════
-async function api(method, path, body, token) {
-  const headers = {'Content-Type': 'application/json'};
-  if (token || S.token) headers['Authorization'] = `Bearer ${token || S.token}`;
-  const res = await fetch('/api/v1' + path, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw data;
-  return data;
-}
-
-// ══════════════════════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════════════════════
-function switchAuthTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i) => {
-    t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register'));
-  });
-  document.getElementById('auth-form-login').classList.toggle('hidden', tab !== 'login');
-  document.getElementById('auth-form-register').classList.toggle('hidden', tab !== 'register');
-  document.getElementById('auth-error').classList.add('hidden');
-}
-
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.classList.remove('hidden');
-}
-
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  try {
-    const data = await api('POST', '/auth/login', {email, password});
-    setAuth(data.accessToken, data.user.email);
-  } catch(e) {
-    showAuthError(e.message || 'Login failed');
-  }
-}
-
-async function doRegister() {
-  const email = document.getElementById('reg-email').value.trim();
-  const password = document.getElementById('reg-password').value;
-  try {
-    const data = await api('POST', '/auth/register', {email, password});
-    setAuth(data.accessToken, data.user.email);
-  } catch(e) {
-    showAuthError(e.message || 'Registration failed');
-  }
-}
-
-function setAuth(token, email) {
-  S.token = token;
-  S.userEmail = email;
-  sessionStorage.setItem('qb_token', token);
-  sessionStorage.setItem('qb_email', email);
-  document.getElementById('nav-email').textContent = email;
-  showScreen('screen-dashboard');
-  loadDashboard();
-}
-
-function doLogout() {
-  S.token = null;
-  S.userEmail = null;
-  sessionStorage.clear();
-  showScreen('screen-auth');
-}
-
-// ══════════════════════════════════════════════════════════════
-// DASHBOARD
-// ══════════════════════════════════════════════════════════════
-async function loadDashboard() {
-  const grid = document.getElementById('quiz-grid');
-  grid.innerHTML = '<div class="loading-overlay"><div class="spinner"></div></div>';
-  try {
-    const quizzes = await api('GET', '/quizzes');
-    renderDashboard(quizzes);
-  } catch(e) {
-    grid.innerHTML = `<p class="text-muted text-sm">Failed to load quizzes.</p>`;
-  }
-}
-
-function renderDashboard(quizzes) {
-  const grid = document.getElementById('quiz-grid');
-  if (!quizzes.length) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">🧩</div>
-        <p>No quizzes yet. Create your first one!</p>
-      </div>`;
-    return;
-  }
-  grid.innerHTML = quizzes.map(q => `
-    <div class="card card-hover quiz-card" onclick="openEditor('${q.id}')">
-      <div class="quiz-card-title">${esc(q.title)}</div>
-      <div style="margin-top:6px;">
-        <span class="badge badge-${q.status.toLowerCase()}">${q.status}</span>
-      </div>
-      <div class="quiz-card-footer">
-        <span class="text-xs text-muted text-mono">${q._count?.questions || 0} questions</span>
-        <div class="flex gap-2">
-          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();confirmDeleteQuiz('${q.id}','${esc(q.title)}')">Delete</button>
-          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openEditor('${q.id}')">Edit →</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function openCreateQuizModal() {
-  document.getElementById('new-quiz-title').value = '';
-  openModal('modal-create-quiz');
-}
-
-async function doCreateQuiz() {
-  const title = document.getElementById('new-quiz-title').value.trim();
-  if (!title) return;
-  try {
-    const quiz = await api('POST', '/quizzes', {title});
-    closeModal('modal-create-quiz');
-    openEditor(quiz.id);
-  } catch(e) {
-    document.getElementById('create-quiz-error').textContent = e.message || 'Error';
-    document.getElementById('create-quiz-error').classList.remove('hidden');
-  }
-}
-
-async function confirmDeleteQuiz(id, title) {
-  if (!confirm(`Delete "${title}"?`)) return;
-  try {
-    await api('DELETE', `/quizzes/${id}`);
-    loadDashboard();
-  } catch(e) { alert('Failed to delete'); }
-}
-
-// ══════════════════════════════════════════════════════════════
-// EDITOR
-// ══════════════════════════════════════════════════════════════
-let editingQuestionId = null;
-
-async function openEditor(qid) {
-  try {
-    const quiz = await api('GET', `/quizzes/${qid}`);
-    S.currentQuiz = quiz;
-    renderEditor(quiz);
-    showScreen('screen-editor');
-  } catch(e) { alert('Could not load quiz'); }
-}
-
-function renderEditor(quiz) {
-  document.getElementById('editor-title').textContent = quiz.title;
-  const badge = document.getElementById('editor-badge');
-  badge.textContent = quiz.status;
-  badge.className = `badge badge-${quiz.status.toLowerCase()}`;
-  document.getElementById('editor-status-text').textContent =
-    quiz.status === 'PUBLISHED' ? 'Live & hostable' : 'Draft — not visible to players';
-
-  const publishBtn = document.getElementById('btn-publish');
-  publishBtn.textContent = quiz.status === 'PUBLISHED' ? 'Unpublish' : 'Publish';
-  publishBtn.className = quiz.status === 'PUBLISHED' ? 'btn btn-ghost btn-sm' : 'btn btn-success btn-sm';
-
-  const ql = document.getElementById('question-list');
-  if (!quiz.questions.length) {
-    ql.innerHTML = '<p class="text-sm text-muted mb-4">No questions yet. Add some below!</p>';
-    return;
-  }
-  ql.innerHTML = quiz.questions.map((q, i) => `
-    <div class="question-item">
-      <div class="q-number">${i+1}</div>
-      <div class="q-info">
-        <div class="q-text">${esc(q.text)}</div>
-        <div class="q-meta">${q.type} · ${q.timeLimitSeconds}s · ${q.points}pts · ${q.answerOptions.length} options</div>
-      </div>
-      <div class="q-actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditQuestion('${q.id}')" title="Edit">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteQuestion('${q.id}')" title="Delete">🗑</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function editQuizMeta() {
-  document.getElementById('meta-title').value = S.currentQuiz.title;
-  document.getElementById('meta-desc').value = S.currentQuiz.description || '';
-  openModal('modal-edit-meta');
-}
-
-async function doSaveMeta() {
-  const title = document.getElementById('meta-title').value.trim();
-  const description = document.getElementById('meta-desc').value.trim();
-  if (!title) return;
-  try {
-    const quiz = await api('PATCH', `/quizzes/${S.currentQuiz.id}`, {title, description});
-    S.currentQuiz = {...S.currentQuiz, ...quiz};
-    closeModal('modal-edit-meta');
-    renderEditor(S.currentQuiz);
-  } catch(e) {}
-}
-
-async function togglePublish() {
-  const newStatus = S.currentQuiz.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-  try {
-    const quiz = await api('PATCH', `/quizzes/${S.currentQuiz.id}`, {status: newStatus});
-    S.currentQuiz = {...S.currentQuiz, ...quiz};
-    renderEditor(S.currentQuiz);
-  } catch(e) { alert(e.message || 'Error'); }
-}
-
-// ── Question Modal ──
-function openQuestionModal() {
-  editingQuestionId = null;
-  document.getElementById('q-modal-title').textContent = 'Add Question';
-  document.getElementById('q-text').value = '';
-  document.getElementById('q-type').value = 'SINGLE_CHOICE';
-  document.getElementById('q-time').value = '20';
-  document.getElementById('q-points').value = '1000';
-  document.getElementById('q-modal-error').classList.add('hidden');
-  renderOptionFields();
-  openModal('modal-question');
-}
-
-function openEditQuestion(qid) {
-  const q = S.currentQuiz.questions.find(x => x.id === qid);
-  if (!q) return;
-  editingQuestionId = qid;
-  document.getElementById('q-modal-title').textContent = 'Edit Question';
-  document.getElementById('q-text').value = q.text;
-  document.getElementById('q-type').value = q.type;
-  document.getElementById('q-time').value = q.timeLimitSeconds;
-  document.getElementById('q-points').value = q.points;
-  document.getElementById('q-modal-error').classList.add('hidden');
-  renderOptionFields(q.answerOptions);
-  openModal('modal-question');
-}
-
-function renderOptionFields(existing) {
-  const type = document.getElementById('q-type').value;
-  const list = document.getElementById('options-list');
-  document.getElementById('btn-add-option').style.display = type === 'TRUE_FALSE' ? 'none' : '';
-
-  if (type === 'TRUE_FALSE') {
-    list.innerHTML = `
-      ${optionRow('True', existing ? existing[0]?.isCorrect : true, true)}
-      ${optionRow('False', existing ? existing[1]?.isCorrect : false, true)}
-    `;
-  } else {
-    const opts = existing || [{text:'',isCorrect:true},{text:'',isCorrect:false}];
-    list.innerHTML = opts.map(o => optionRow(o.text, o.isCorrect, false)).join('');
-  }
-}
-
-function startHostTimer(seconds) {
-  console.log(`[HOST TIMER] Starting timer for ${seconds}s. Session: ${S.hostSessionId}`);
-  let remaining = seconds;
-  const fill = document.getElementById('host-timer-fill');
-  if (fill) fill.style.width = '100%';
-
-  clearInterval(window.hostTimerInterval);
-  window.hostTimerInterval = setInterval(async () => {
-    remaining--;
-
-    if (remaining % 5 === 0 || remaining <= 3) {
-      console.log(`[HOST TIMER] T-minus: ${remaining}s`);
-    }
-
-    if (fill) {
-      fill.style.width = Math.max(0, (remaining / seconds) * 100) + '%';
-    }
-
-    if (remaining <= 0) {
-      console.warn('[HOST TIMER] TIME IS UP — auto-ending question.');
-      clearInterval(window.hostTimerInterval);
-      window.hostTimerInterval = null;
-
-      const sessionId = S.hostSessionId;
-      if (!sessionId) {
-        console.error('[HOST TIMER] Auto-end FAILED: S.hostSessionId is null/undefined.');
-        return;
-      }
-
-      console.log(`[HOST TIMER] POST /api/v1/sessions/${sessionId}/end-question`);
-      try {
-        const resp = await fetch(`/api/v1/sessions/${sessionId}/end-question`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + S.token,
-          },
-        });
-        if (resp.ok) {
-          const body = await resp.json();
-          console.log('[HOST TIMER] Auto-end OK. Server response:', body);
-        } else {
-          const errBody = await resp.json().catch(() => ({}));
-          console.error('[HOST TIMER] Auto-end rejected by server:', resp.status, errBody);
-        }
-      } catch (err) {
-        console.error('[HOST TIMER] Network error on auto-end:', err);
-      }
-    }
-  }, 1000);
-}
-
-async function autoEndQuestion() {
-  const sessionId = S.currentSession.id;
-  // Call your existing endpoint that handles ending the question
-  await apiFetch(`/api/v1/game/sessions/${sessionId}/next`, { method: 'POST' });
-}
-
-function optionRow(text, correct, readonlyText) {
-  return `
-    <div class="option-row">
-      <div class="option-correct ${correct?'checked':''}" onclick="toggleCorrect(this)">
-        ${correct?'✓':''}
-      </div>
-      <input type="text" value="${esc(text)}" placeholder="Option text…" ${readonlyText?'readonly':''} style="${readonlyText?'color:var(--text2)':''}"/>
-      ${readonlyText?'':'<button class="option-remove" onclick="this.closest(\'.option-row\').remove()">×</button>'}
-    </div>`;
-}
-
-function addOptionField() {
-  const list = document.getElementById('options-list');
-  const div = document.createElement('div');
-  div.innerHTML = optionRow('', false, false);
-  list.appendChild(div.firstElementChild);
-}
-
-function toggleCorrect(el) {
-  const type = document.getElementById('q-type').value;
-  if (type === 'SINGLE_CHOICE') {
-    document.querySelectorAll('#options-list .option-correct').forEach(c => {
-      c.classList.remove('checked');
-      c.textContent = '';
-    });
-  }
-  el.classList.toggle('checked');
-  el.textContent = el.classList.contains('checked') ? '✓' : '';
-}
-
-async function doSaveQuestion() {
-  const text = document.getElementById('q-text').value.trim();
-  if (!text) { showQError('Question text is required'); return; }
-  const type = document.getElementById('q-type').value;
-  const timeLimitSeconds = parseInt(document.getElementById('q-time').value) || 20;
-  const points = parseInt(document.getElementById('q-points').value) || 1000;
-  const rows = document.querySelectorAll('#options-list .option-row');
-  const answerOptions = Array.from(rows).map(row => ({
-    text: row.querySelector('input[type=text]').value.trim(),
-    isCorrect: row.querySelector('.option-correct').classList.contains('checked'),
-  })).filter(o => o.text);
-  if (!answerOptions.length) { showQError('Add at least one option'); return; }
-  if (!answerOptions.some(o => o.isCorrect)) { showQError('At least one option must be correct'); return; }
-  try {
-    if (editingQuestionId) {
-      await api('PATCH', `/questions/${editingQuestionId}`, {text, timeLimitSeconds, points, answerOptions});
-    } else {
-      await api('POST', `/quizzes/${S.currentQuiz.id}/questions`, {text, type, timeLimitSeconds, points, answerOptions});
-    }
-    const quiz = await api('GET', `/quizzes/${S.currentQuiz.id}`);
-    S.currentQuiz = quiz;
-    renderEditor(quiz);
-    closeModal('modal-question');
-  } catch(e) { showQError(e.message || 'Error saving question'); }
-}
-
-function showQError(msg) {
-  const el = document.getElementById('q-modal-error');
-  el.textContent = msg;
-  el.classList.remove('hidden');
-}
-
-async function deleteQuestion(qid) {
-  if (!confirm('Delete this question?')) return;
-  try {
-    await api('DELETE', `/questions/${qid}`);
-    const quiz = await api('GET', `/quizzes/${S.currentQuiz.id}`);
-    S.currentQuiz = quiz;
-    renderEditor(quiz);
-  } catch(e) {}
-}
-
-// ══════════════════════════════════════════════════════════════
-// HOST
-// ══════════════════════════════════════════════════════════════
-async function startHostSession() {
-  if (S.currentQuiz.status !== 'PUBLISHED') {
-    alert('Publish the quiz before hosting.');
-    return;
-  }
-  if (!S.currentQuiz.questions.length) {
-    alert('Add questions first.');
-    return;
-  }
-  try {
-    const data = await api('POST', '/sessions', {quizId: S.currentQuiz.id});
-    S.hostSessionId = data.sessionId;
-    document.getElementById('host-pin').textContent = data.pin;
-    document.getElementById('host-status-badge').className = 'badge badge-waiting';
-    document.getElementById('host-status-badge').textContent = 'Waiting';
-    resetHostUI();
-    showScreen('screen-host');
-    connectHostSSE(data.sessionId);
-  } catch(e) { alert(e.message || 'Could not start session'); }
-}
-
-function resetHostUI() {
-  document.getElementById('host-lobby').classList.remove('hidden');
-  document.getElementById('host-question').classList.add('hidden');
-  document.getElementById('host-leaderboard-panel').classList.add('hidden');
-  document.getElementById('host-chips').innerHTML = '<span class="text-sm text-muted">Waiting for players to join…</span>';
-  document.getElementById('participant-count').textContent = '(0)';
-  document.getElementById('btn-start-game').disabled = true;
-}
-
-function connectHostSSE(sid) {
-  console.log(`[HOST SSE] Connecting to session ${sid}...`);
-  if (S.hostEventSource) S.hostEventSource.close();
-  const es = new EventSource(`/api/v1/sessions/${sid}/events`);
-  S.hostEventSource = es;
-  es.onopen = () => console.log('[HOST SSE] Connection opened.');
-  es.onmessage = (e) => {
-    console.log('[HOST SSE] Raw message:', e.data);
-    let msg;
-    try { msg = JSON.parse(e.data); } catch(err) { console.error('[HOST SSE] Parse error:', err); return; }
-    handleHostEvent(msg.event, msg.data);
-  };
-  es.onerror = (err) => console.error('[HOST SSE] Connection error:', err);
-}
-
-function handleHostEvent(event, data) {
-  console.log(`[HOST SSE] Event: "${event}"`, data);
-  switch(event) {
-    case 'session:state':
-      renderHostParticipants(data.participants || []);
-      break;
-    case 'lobby:participant_list':
-      renderHostParticipants(data.participants || []);
-      break;
-    case 'game:question_started':
-      console.log(`[HOST SSE] Question started: idx=${data.questionIndex} id=${data.id} timeLimit=${data.timeLimitSeconds}s`);
-      S.hostCurrentQ = data;
-      showHostQuestion(data);
-      break;
-    case 'game:question_ended':
-      console.log('[HOST SSE] Question ended — showing results.');
-      showHostResults(data);
-      break;
-    case 'game:leaderboard':
-      console.log('[HOST SSE] Leaderboard update:', data.leaderboard);
-      renderHostLeaderboard(data.leaderboard);
-      break;
-    case 'game:ended':
-      console.log('[HOST SSE] Game ended.');
-      showHostFinal(data.leaderboard);
-      break;
-    default:
-      console.log(`[HOST SSE] Unhandled event: "${event}"`);
-  }
-}
-
-function renderHostParticipants(list) {
-  const chips = document.getElementById('host-chips');
-  const count = document.getElementById('participant-count');
-  count.textContent = `(${list.length})`;
-  document.getElementById('btn-start-game').disabled = list.length === 0;
-  if (!list.length) {
-    chips.innerHTML = '<span class="text-sm text-muted">Waiting for players to join…</span>';
-    return;
-  }
-  chips.innerHTML = list.map(p => `<div class="chip">${esc(p.nickname)}</div>`).join('');
-}
-
-async function hostStartGame() {
-  try {
-    await api('POST', `/sessions/${S.hostSessionId}/start`);
-    document.getElementById('host-status-badge').className = 'badge badge-active';
-    document.getElementById('host-status-badge').textContent = 'Live';
-    document.getElementById('host-lobby').classList.add('hidden');
-  } catch(e) { alert(e.message || 'Error starting'); }
-}
-
-function showHostQuestion(data) {
-  document.getElementById('host-lobby').classList.add('hidden');
-  document.getElementById('host-leaderboard-panel').classList.add('hidden');
-  document.getElementById('host-question').classList.remove('hidden');
-  document.getElementById('btn-end-q').classList.remove('hidden');
-  document.getElementById('btn-next-q').classList.add('hidden');
-  document.getElementById('btn-finish-game').classList.add('hidden');
-  document.getElementById('host-q-stats').style.display = 'none';
-
-  document.getElementById('host-q-progress').textContent =
-    `Question ${data.questionIndex + 1} of ${data.totalQuestions}`;
-  document.getElementById('host-q-text').textContent = data.text;
-
-  const labels = ['A','B','C','D'];
-  document.getElementById('host-q-options').innerHTML =
-    data.answerOptionsWithCorrect.map((o,i) => `
-      <div class="answer-option ${o.isCorrect?'correct':''}">
-        <div class="opt-label">${labels[i]||i+1}</div>
-        ${esc(o.text)}
-      </div>
-    `).join('');
-
-  // Timer — delegate to startHostTimer() so expiry triggers auto end-question
-  startHostTimer(data.timeLimitSeconds);
-}
-
-function showHostResults(data) {
-  clearInterval(S.hostTimerInterval);
-  document.getElementById('host-timer-fill').style.width = '0%';
-  document.getElementById('btn-end-q').classList.add('hidden');
-
-  const quiz = S.currentQuiz;
-  const isLast = S.hostCurrentQ &&
-    S.hostCurrentQ.questionIndex + 1 >= S.hostCurrentQ.totalQuestions;
-  if (isLast) {
-    document.getElementById('btn-finish-game').classList.remove('hidden');
-  } else {
-    document.getElementById('btn-next-q').classList.remove('hidden');
-  }
-
-  // Stats
-  const statsEl = document.getElementById('host-q-stats');
-  statsEl.style.display = 'flex';
-  const labels = ['A','B','C','D'];
-  const total = data.stats.totalParticipants || 1;
-  const opts = data.answerOptions || [];
-  statsEl.innerHTML = opts.map((o,i) => {
-    const count = data.stats.byOption[o.id] || 0;
-    const pct = Math.round(count / total * 100);
-    const isCorrect = data.correctOptionIds.includes(o.id);
-    return `
-      <div class="stat-option-bar">
-        <span class="stat-label">${labels[i]||i+1}</span>
-        <div class="stat-fill-wrap">
-          <div class="stat-fill ${isCorrect?'correct':''}" style="width:${pct}%"></div>
-        </div>
-        <span class="text-xs text-mono text-muted">${count}</span>
-      </div>`;
-  }).join('');
-}
-
-function renderHostLeaderboard(lb) {
-  document.getElementById('host-leaderboard-panel').classList.remove('hidden');
-  document.getElementById('host-leaderboard').innerHTML = lb.slice(0,10).map(p => {
-    const rankClass = p.rank===1?'gold':p.rank===2?'silver':p.rank===3?'bronze':'';
-    return `
-      <div class="lb-row">
-        <div class="lb-rank ${rankClass}">#${p.rank}</div>
-        <div class="lb-name">${esc(p.nickname)}</div>
-        <div class="lb-score">${p.score.toLocaleString()}</div>
-      </div>`;
-  }).join('');
-}
-
-function showHostFinal(lb) {
-  clearInterval(S.hostTimerInterval);
-  document.getElementById('host-question').classList.add('hidden');
-  document.getElementById('host-status-badge').className = 'badge badge-finished';
-  document.getElementById('host-status-badge').textContent = 'Finished';
-  renderHostLeaderboard(lb);
-}
-
-async function hostEndQuestion() {
-  try { await api('POST', `/sessions/${S.hostSessionId}/end-question`); }
-  catch(e) {}
-}
-
-async function hostNextQuestion() {
-  document.getElementById('host-leaderboard-panel').classList.add('hidden');
-  try { await api('POST', `/sessions/${S.hostSessionId}/next-question`); }
-  catch(e) {}
-}
-
-async function hostEndGame() {
-  try { await api('POST', `/sessions/${S.hostSessionId}/end-game`); }
-  catch(e) {}
-}
-
-function endAndLeave() {
-  if (S.hostEventSource) { S.hostEventSource.close(); S.hostEventSource = null; }
-  clearInterval(S.hostTimerInterval);
-  showScreen('screen-dashboard');
-  loadDashboard();
-}
-
-// ══════════════════════════════════════════════════════════════
-// PLAYER FLOW
-// ══════════════════════════════════════════════════════════════
-async function doJoinPin() {
-  const pin = document.getElementById('join-pin').value.trim();
-  const errEl = document.getElementById('join-error');
-  errEl.classList.add('hidden');
-  if (pin.length < 6) { errEl.textContent='Enter a 6-digit PIN'; errEl.classList.remove('hidden'); return; }
-  try {
-    const data = await api('POST', '/join', {pin});
-    S.pendingSessionId = data.sessionId;
-    S.pendingQuizTitle = data.quizTitle;
-    document.getElementById('nick-quiz-title-modal').textContent = data.quizTitle;
-    document.getElementById('nickname-input').value = '';
-    document.getElementById('nick-error').classList.add('hidden');
-    openModal('modal-nickname');
-  } catch(e) {
-    errEl.textContent = e.message || 'Game not found';
-    errEl.classList.remove('hidden');
-  }
-}
-
-async function doIdentify() {
-  const nickname = document.getElementById('nickname-input').value.trim();
-  const errEl = document.getElementById('nick-error');
-  errEl.classList.add('hidden');
-  if (!nickname) { errEl.textContent='Enter a nickname'; errEl.classList.remove('hidden'); return; }
-  try {
-    const data = await api('POST', `/join/${S.pendingSessionId}/identify`, {nickname});
-    S.playerToken = data.participantToken;
-    S.playerSessionId = S.pendingSessionId;
-    S.playerScore = 0;
-    S.playerCurrentQId = null;
-    closeModal('modal-nickname');
-    document.getElementById('lobby-quiz-title').textContent = S.pendingQuizTitle;
-    document.getElementById('lobby-me').textContent = nickname;
-    document.getElementById('lobby-players').innerHTML = '';
-    document.getElementById('lobby-count').textContent = '1';
-    showScreen('screen-lobby');
-    connectPlayerSSE(S.pendingSessionId);
-  } catch(e) {
-    errEl.textContent = e.message || 'Could not join';
-    errEl.classList.remove('hidden');
-  }
-}
-
-function connectPlayerSSE(sid) {
-  if (S.playerEventSource) S.playerEventSource.close();
-  const es = new EventSource(`/api/v1/sessions/${sid}/events`);
-  S.playerEventSource = es;
- es.onmessage = (e) => {
-    console.log("New Event:", e.data); // Add this
-    try { 
-      let msg = JSON.parse(e.data); 
-      handlePlayerEvent(msg.event, msg.data);
-    } catch (err) { 
-      console.error("Parse error:", err); 
-    }
-  };
-  es.onerror = (err) => {
-    console.error("SSE Connection Failed:", err); // Add this
-  };
-}
-
-function handlePlayerEvent(event, data) {
-  console.log(`[PLAYER SSE] Event received: "${event}"`, data);
-  switch(event) {
-    case 'lobby:participant_list':
-      document.getElementById('lobby-players').innerHTML =
-        data.participants.map(p => `<div class="chip">${esc(p.nickname)}</div>`).join('');
-      document.getElementById('lobby-count').textContent = data.participants.length;
-      break;
-    case 'game:started':
-      console.log('[PLAYER SSE] Game started — waiting for question_started.');
-      break;
-    case 'game:question_started':
-      console.log(`[PLAYER SSE] New question: id=${data.id} timeLimit=${data.timeLimitSeconds}s`);
-      showPlayerQuestion(data);
-      break;
-    case 'answer:acknowledged':
-      console.log(`[PLAYER SSE] Answer acknowledged: participantId=${data.participantId} isCorrect=${data.isCorrect} pts=${data.pointsEarned}`);
-      if (data.participantId === getPlayerIdFromToken()) {
-        showPlayerResult(data);
-      }
-      break;
-    case 'game:question_ended':
-      console.log('[PLAYER SSE] Question ended — revealing correct answers.');
-      clearInterval(S.playerTimerInterval);
-      showPlayerAnswerReveal(data);
-      break;
-    case 'game:leaderboard':
-      console.log('[PLAYER SSE] Mid-game leaderboard received:', data.leaderboard);
-      renderPlayerMidLeaderboard(data.leaderboard);
-      break;
-    case 'game:ended':
-      console.log('[PLAYER SSE] Game ended. Final leaderboard:', data.leaderboard);
-      showFinalScreen(data.leaderboard);
-      break;
-    default:
-      console.log(`[PLAYER SSE] Unhandled event: "${event}"`);
-  }
-}
-
-function getPlayerIdFromToken() {
-  try {
-    const payload = JSON.parse(atob(S.playerToken.split('.')[1]));
-    return payload.participant_id;
-  } catch { return null; }
-}
-
-function showPlayerQuestion(data) {
-  S.playerCurrentQId = data.id;
-  showScreen('screen-player-game');
-  document.getElementById('player-score').textContent = S.playerScore.toLocaleString();
-  document.getElementById('player-question-area').classList.remove('hidden');
-  document.getElementById('player-result-area').classList.add('hidden');
-  document.getElementById('player-mid-leaderboard-panel').classList.add('hidden');
-  document.getElementById('player-q-text').textContent = data.text;
-
-  const labels = ['A','B','C','D'];
-  const opts = document.getElementById('player-q-options');
-  opts.innerHTML = data.answerOptions.map((o,i) => `
-    <button class="player-option" onclick="submitAnswer('${o.id}', this)">
-      <div class="opt-label">${labels[i]||i+1}</div>
-      ${esc(o.text)}
-    </button>
-  `).join('');
-
-  // Timer
-  clearInterval(S.playerTimerInterval);
-  const fill = document.getElementById('player-timer-fill');
-  const total = data.timeLimitSeconds * 1000;
-  const start = Date.now();
-  fill.style.width = '100%';
-  console.log(`[PLAYER TIMER] Starting ${data.timeLimitSeconds}s timer for question ${data.id}`);
-  S.playerTimerInterval = setInterval(() => {
-    const elapsed = Date.now() - start;
-    const pct = Math.max(0, 100 - (elapsed / total * 100));
-    fill.style.width = pct + '%';
-    if (pct <= 0) {
-      clearInterval(S.playerTimerInterval);
-      console.warn('[PLAYER TIMER] TIME IS UP — registering timeout as wrong answer.');
-      // Submit null option so server counts this as an unanswered (0 pts) entry
-      const anyBtn = document.querySelectorAll('.player-option')[0];
-      submitTimeoutAnswer();
-    }
-  }, 200);
-}
-
-// NEW: Render the mid-game leaderboard for the player
-function renderPlayerMidLeaderboard(lb) {
-  const panel = document.getElementById('player-mid-leaderboard-panel');
-  if (panel) panel.classList.remove('hidden');
-
-  const container = document.getElementById('player-mid-leaderboard');
-  const myId = getPlayerIdFromToken();
-  
-  if (container) {
-    // Show top 5 players to save space on mobile
-    container.innerHTML = lb.slice(0, 5).map(p => {
-      const isMe = p.id === myId;
-      const rankClass = p.rank===1?'gold':p.rank===2?'silver':p.rank===3?'bronze':'';
-      const highlightStyle = isMe ? 'border: 1px solid var(--accent); background: rgba(124,107,255,0.15);' : '';
-      
-      return `
-        <div class="lb-row" style="${highlightStyle}">
-          <div class="lb-rank ${rankClass}">#${p.rank}</div>
-          <div class="lb-name">${esc(p.nickname)} ${isMe ? '<span class="text-xs text-muted">(You)</span>' : ''}</div>
-          <div class="lb-score">${p.score.toLocaleString()}</div>
-        </div>`;
-    }).join('');
-  }
-}
-
-async function submitTimeoutAnswer() {
-  // Check if player already answered (race condition: answer submitted just before timer fired)
-  const btns = document.querySelectorAll('.player-option');
-  const alreadyAnswered = Array.from(btns).some(b => b.disabled);
-  if (alreadyAnswered) {
-    console.log('[PLAYER TIMER] Timeout fired but player already answered — skipping null submit.');
-    return;
-  }
-  console.log('[PLAYER TIMER] Submitting null answer (timeout) for question', S.playerCurrentQId);
-  // Disable all buttons to show time is up
-  btns.forEach(b => b.disabled = true);
-  try {
-    const result = await api('POST', '/answer', {optionId: null}, S.playerToken);
-    console.log('[PLAYER TIMER] Timeout answer accepted by server:', result);
-    showPlayerResult({...result, isCorrect: false, pointsEarned: 0});
-  } catch(e) {
-    // Already answered or session ended — both are fine
-    console.warn('[PLAYER TIMER] Timeout submit rejected (likely already answered or session ended):', e);
-  }
-}
-
-async function submitAnswer(optionId, btn) {
-  console.log(`[PLAYER] Submitting answer optionId=${optionId} for question ${S.playerCurrentQId}`);
-  // Disable all options immediately to prevent double-submit
-  document.querySelectorAll('.player-option').forEach(b => b.disabled = true);
-  btn.classList.add('selected');
-  try {
-    const result = await api('POST', '/answer', {optionId}, S.playerToken);
-    console.log('[PLAYER] Answer acknowledged by server:', result);
-  } catch(e) {
-    console.error('[PLAYER] Answer submission failed:', e);
-  }
-}
-
-function showPlayerResult(data) {
-  clearInterval(S.playerTimerInterval);
-  S.playerScore = data.totalScore;
-  document.getElementById('player-score').textContent = data.totalScore.toLocaleString();
-  document.getElementById('player-question-area').classList.add('hidden');
-  document.getElementById('player-result-area').classList.remove('hidden');
-  document.getElementById('result-emoji').textContent = data.isCorrect ? '🎉' : '😬';
-  const pts = document.getElementById('result-points');
-  pts.textContent = data.isCorrect ? `+${data.pointsEarned}` : 'Incorrect';
-  pts.className = `result-points ${data.isCorrect?'correct':'incorrect'}`;
-  document.getElementById('result-total').textContent = `Total: ${data.totalScore.toLocaleString()} pts`;
-}
-
-function showPlayerAnswerReveal(data) {
-  // Highlight correct answers if still on question screen
-  const opts = document.querySelectorAll('.player-option');
-  // Already showing result — just stay
-}
-
-function showFinalScreen(leaderboard) {
-  clearInterval(S.playerTimerInterval);
-  if (S.playerEventSource) { S.playerEventSource.close(); S.playerEventSource = null; }
-  const lb = document.getElementById('final-leaderboard');
-  lb.innerHTML = leaderboard.map(p => {
-    const rankClass = p.rank===1?'gold':p.rank===2?'silver':p.rank===3?'bronze':'';
-    return `
-      <div class="lb-row">
-        <div class="lb-rank ${rankClass}">#${p.rank}</div>
-        <div class="lb-name">${esc(p.nickname)}</div>
-        <div class="lb-score">${p.score.toLocaleString()}</div>
-      </div>`;
-  }).join('');
-  showScreen('screen-final');
-}
-
-// ══════════════════════════════════════════════════════════════
-// MODAL HELPERS
-// ══════════════════════════════════════════════════════════════
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-// Close on overlay click
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => {
-    if (e.target === el) el.classList.remove('open');
-  });
-});
-
-// ══════════════════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════════════════
-function esc(str) {
-  return String(str||'')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-</script>
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </body>
 </html>
